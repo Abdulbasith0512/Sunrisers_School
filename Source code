@@ -1,0 +1,274 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define MAX 100
+
+// School structure
+typedef struct {
+    int sch_id;
+    char sch_code[10];
+    char sch_name[50];
+    char sch_location[100];
+    char sch_email[50];
+} School;
+
+// Global array to store school data and a counter
+School schools[MAX];
+int school_count = 0;
+
+// File name for storing the details
+const char* FILE_NAME = "school_setting.txt";
+
+// Function declarations
+void sunrisers_create();
+void sunrisers_update();
+void sunrisers_retrieve();
+void sunrisers_delete();
+void sunrisers_storing();
+void sunrisers_sortbycode();
+void sunrisers_searchbycode();
+void sunrisers_linearsearchbyname();
+void sunrisers_complexity_searching();
+void sunrisers_complexity_sorting();
+void merge(School arr[], int l, int m, int r);
+void mergeSort(School arr[], int l, int r);
+
+// Function to load data from the file into the schools array
+void load_from_file() {
+    FILE *file = fopen(FILE_NAME, "r");
+    if (file == NULL) {
+        return; // No file exists yet
+    }
+    school_count = 0;
+    while (fscanf(file, "%d %s %s %s %s\n", &schools[school_count].sch_id,
+                  schools[school_count].sch_code,
+                  schools[school_count].sch_name,
+                  schools[school_count].sch_location,
+                  schools[school_count].sch_email) != EOF) {
+        school_count++;
+    }
+    fclose(file);
+}
+
+// Function to save data to the file
+void sunrisers_storing() {
+    FILE *file = fopen(FILE_NAME, "w");
+    if (file == NULL) {
+        printf("Error opening file!\n");
+        return;
+    }
+    for (int i = 0; i < school_count; i++) {
+        fprintf(file, "%d %s %s %s %s\n", schools[i].sch_id,
+                schools[i].sch_code, schools[i].sch_name,
+                schools[i].sch_location, schools[i].sch_email);
+    }
+    fclose(file);
+}
+
+// Function to create a school record
+void sunrisers_create() {
+    if (school_count >= MAX) {
+        printf("School list is full!\n");
+        return;
+    }
+    School s;
+    printf("Enter School ID: ");
+    scanf("%d", &s.sch_id);
+    printf("Enter School Code: ");
+    scanf("%s", s.sch_code);
+    printf("Enter School Name: ");
+    scanf("%s", s.sch_name);
+    printf("Enter School Location: ");
+    scanf("%s", s.sch_location);
+    printf("Enter School Email: ");
+    scanf("%s", s.sch_email);
+    schools[school_count++] = s;
+    sunrisers_storing();
+    printf("School created successfully!\n");
+}
+
+// Function to update a school record
+void sunrisers_update() {
+    int id;
+    printf("Enter School ID to update: ");
+    scanf("%d", &id);
+    for (int i = 0; i < school_count; i++) {
+        if (schools[i].sch_id == id) {
+            printf("Enter new School Code: ");
+            scanf("%s", schools[i].sch_code);
+            printf("Enter new School Name: ");
+            scanf("%s", schools[i].sch_name);
+            printf("Enter new School Location: ");
+            scanf("%s", schools[i].sch_location);
+            printf("Enter new School Email: ");
+            scanf("%s", schools[i].sch_email);
+            sunrisers_storing();
+            printf("School updated successfully!\n");
+            return;
+        }
+    }
+    printf("School with ID %d not found.\n", id);
+}
+
+// Function to retrieve all school records
+void sunrisers_retrieve() {
+    printf("\nList of Schools:\n");
+    for (int i = 0; i < school_count; i++) {
+        printf("ID: %d\nCode: %s\nName: %s\nLocation: %s\nEmail: %s\n\n",
+               schools[i].sch_id, schools[i].sch_code,
+               schools[i].sch_name, schools[i].sch_location,
+               schools[i].sch_email);
+    }
+}
+
+// Function to delete a school record
+void sunrisers_delete() {
+    int id;
+    printf("Enter School ID to delete: ");
+    scanf("%d", &id);
+    for (int i = 0; i < school_count; i++) {
+        if (schools[i].sch_id == id) {
+            for (int j = i; j < school_count - 1; j++) {
+                schools[j] = schools[j + 1];
+            }
+            school_count--;
+            sunrisers_storing();
+            printf("School deleted successfully!\n");
+            return;
+        }
+    }
+    printf("School with ID %d not found.\n", id);
+}
+
+// Function to search school by code
+void sunrisers_searchbycode() {
+    char code[10];
+    printf("Enter School Code to search: ");
+    scanf("%s", code);
+    for (int i = 0; i < school_count; i++) {
+        if (strcmp(schools[i].sch_code, code) == 0) {
+            printf("ID: %d\nCode: %s\nName: %s\nLocation: %s\nEmail: %s\n",
+                   schools[i].sch_id, schools[i].sch_code,
+                   schools[i].sch_name, schools[i].sch_location,
+                   schools[i].sch_email);
+            return;
+        }
+    }
+    printf("School with code %s not found.\n", code);
+}
+
+// Linear search by school name
+void sunrisers_linearsearchbyname() {
+    char name[50];
+    printf("Enter School Name to search: ");
+    scanf("%s", name);
+    for (int i = 0; i < school_count; i++) {
+        if (strcmp(schools[i].sch_name, name) == 0) {
+            printf("ID: %d\nCode: %s\nName: %s\nLocation: %s\nEmail: %s\n",
+                   schools[i].sch_id, schools[i].sch_code,
+                   schools[i].sch_name, schools[i].sch_location,
+                   schools[i].sch_email);
+            return;
+        }
+    }
+    printf("School with name %s not found.\n", name);
+}
+
+// Function to display time complexity of searching algorithms
+void sunrisers_complexity_searching() {
+    printf("Linear Search: time complexity is O(n).\n");
+    printf("Binary Search (for sorted data): time complexity is O(log n).\n");
+}
+
+// Function to display time complexity of sorting algorithms
+void sunrisers_complexity_sorting() {
+    printf("Quick Sort: time complexity is O(n^2) for the worst case and O(n log n) for the average case.\n");
+    printf("Merge Sort: time complexity is O(n log n).\n");
+}
+
+// Merge function for merge sort
+void merge(School arr[], int l, int m, int r) {
+    int n1 = m - l + 1;
+    int n2 = r - m;
+    School L[n1], R[n2];
+    for (int i = 0; i < n1; i++)
+        L[i] = arr[l + i];
+    for (int j = 0; j < n2; j++)
+        R[j] = arr[m + 1 + j];
+    int i = 0, j = 0, k = l;
+    while (i < n1 && j < n2) {
+        if (strcmp(L[i].sch_code, R[j].sch_code) <= 0) {
+            arr[k++] = L[i++];
+        } else {
+            arr[k++] = R[j++];
+        }
+    }
+    while (i < n1) {
+        arr[k++] = L[i++];
+    }
+    while (j < n2) {
+        arr[k++] = R[j++];
+    }
+}
+
+// Merge sort function
+void mergeSort(School arr[], int l, int r) {
+    if (l < r) {
+        int m = l + (r - l) / 2;
+        mergeSort(arr, l, m);
+        mergeSort(arr, m + 1, r);
+        merge(arr, l, m, r);
+    }
+}
+
+// Sort by school code
+void sunrisers_sortbycode() {
+    mergeSort(schools, 0, school_count - 1);
+    printf("Schools sorted by code!\n");
+    sunrisers_retrieve();
+}
+
+int main() {
+    load_from_file();
+    int choice;
+    while (1) {
+        printf("\n1. Create School\n2. Update School\n3. Retrieve Schools\n4. Delete School\n5. Search by Code\n6. Sort by Code\n7. Search by Name\n8. Show Search Complexity\n9. Show Sort Complexity\n10. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+        switch (choice) {
+            case 1:
+                sunrisers_create();
+                break;
+            case 2:
+                sunrisers_update();
+                break;
+            case 3:
+                sunrisers_retrieve();
+                break;
+                case 4:
+                sunrisers_delete();
+                break;
+            case 5:
+                sunrisers_searchbycode();
+                break;
+            case 6:
+                sunrisers_sortbycode();
+                break;
+            case 7:
+                sunrisers_linearsearchbyname();
+                break;
+            case 8:
+                sunrisers_complexity_searching();
+                break;
+            case 9:
+                sunrisers_complexity_sorting();
+                break;
+            case 10:
+                exit(0);
+            default:
+                printf("Invalid choice!\n");
+        }
+    }
+    return 0;
+}
